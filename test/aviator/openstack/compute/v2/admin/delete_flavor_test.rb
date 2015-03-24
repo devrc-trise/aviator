@@ -41,6 +41,20 @@ class Aviator::Test
     end
 
 
+    def create_flavor
+      tenant    = session.identity_service.request(:list_tenants).body[:tenants].first
+      tenant_id = tenant[:id]
+
+      response = session.compute_service.request :create_flavor do |params|
+        params[:tenant_id] = tenant_id
+        params[:disk] = '1'
+        params[:ram] = '1'
+        params[:vcpus] = '1'
+        params[:name] = 'testflavor'
+      end
+      response.body[:flavor]
+    end
+
 
     validate_attr :anonymous? do
       klass.anonymous?.must_equal false
@@ -104,7 +118,7 @@ class Aviator::Test
 
 
     validate_response 'valid params are provided' do
-      flavor    = session.compute_service.request(:list_flavors).body[:flavors].last
+      flavor    = create_flavor
       flavor_id = flavor[:id]
 
       response = session.compute_service.request :delete_flavor do |params|

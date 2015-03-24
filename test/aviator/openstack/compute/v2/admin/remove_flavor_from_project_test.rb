@@ -84,6 +84,26 @@ class Aviator::Test
     end
 
 
+    def create_flavor
+      response = session.compute_service.request :create_flavor do |params|
+        params[:disk] = '1'
+        params[:ram] = '1'
+        params[:vcpus] = '1'
+        params[:name] = 'testflavor'
+      end
+      response.body[:flavor]
+    end
+
+
+    def add_access(flavor_id, tenant_id)
+      response = session.compute_service.request :add_project_flavor do |params|
+        params[:tenant_id] = tenant_id
+        params[:flavor_id] = flavor_id
+      end
+      response.body[:flavor_access]
+    end
+
+
     validate_attr :url do
       flavor_id = 'sample_flavor_id'
       tenant = 'sample_tenant'
@@ -101,14 +121,15 @@ class Aviator::Test
 
 
     validate_response 'valid params are provided' do
-      # must be hardcoded so as not to inadvertently alter random resources
-      # in case the corresponding cassette is deleted
-      flavor_id = '100'
-      tenant = '3697be792da2419f99a63e4d0e34c96c'
+      tenant    = session.identity_service.request(:list_tenants).body[:tenants].first
+      tenant_id = tenant[:id]
+      flavor    = create_flavor
+      flavor_id = flavor[:id]
+      add_access(flavor_id, tenant_id)
 
       response = session.compute_service.request :remove_flavor_from_project do |params|
         params[:flavor_id] = flavor_id
-        params[:tenant] = tenant
+        params[:tenant] = tenant_id
       end
 
       response.status.must_equal 200

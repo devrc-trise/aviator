@@ -11,27 +11,25 @@ module Aviator
     param :tenant,             required: true
 
 
-
     def headers
       super
     end
 
     def body
       p = {
-        removeTenantAccess: {
-          tenant: params[:tenant]
+        :'removeTenantAccess' => {
+          :'tenant' => params[:tenant]
         }
       }
     end
 
+    # Documented (see above link) as :delete yet using :post
     def http_method
-      :delete
+      :post
     end
 
 
     def url
-      puts ">>>>>>>URL: #{ base_url }/flavors/#{ params[:flavor_id] }/action"
-      puts ">>>>>>>BODY: #{ body.inspect }"
       "#{ base_url }/flavors/#{ params[:flavor_id] }/action"
     end
 

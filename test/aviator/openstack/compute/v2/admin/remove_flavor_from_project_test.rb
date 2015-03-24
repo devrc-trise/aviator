@@ -6,8 +6,8 @@ class Aviator::Test
 
     def create_request(session_data = get_session_data, &block)
       block ||= lambda do |params|
-                  params[:flavor_id]            = 0
-                  params[:tenant]               = ''
+                  params[:flavor_id] = 0
+                  params[:tenant] = ''
                 end
 
       klass.new(session_data, &block)
@@ -67,7 +67,7 @@ class Aviator::Test
 
 
     validate_attr :http_method do
-      create_request.http_method.must_equal :delete
+      create_request.http_method.must_equal :post
     end
 
 
@@ -85,15 +85,15 @@ class Aviator::Test
 
 
     validate_attr :url do
-      flavor_id            = 'sample_flavor_id'
-      tenant               = 'sample_tenant'
+      flavor_id = 'sample_flavor_id'
+      tenant = 'sample_tenant'
 
       service_spec = get_session_data[:catalog].find { |s| s[:type] == 'compute' }
       url          = "#{ service_spec[:endpoints].find{|e| e[:interface] == 'admin'}[:url] }/flavors/#{ flavor_id }/action"
 
       request = create_request do |p|
-        p[:flavor_id]            = flavor_id
-        p[:tenant]               = tenant
+        p[:flavor_id] = flavor_id
+        p[:tenant] = tenant
       end
 
       request.url.must_equal url
@@ -103,18 +103,16 @@ class Aviator::Test
     validate_response 'valid params are provided' do
       # must be hardcoded so as not to inadvertently alter random resources
       # in case the corresponding cassette is deleted
-      flavor_id            = 100
-      tenant               = 'musashi-project1'
-      
+      flavor_id = '100'
+      tenant = '3697be792da2419f99a63e4d0e34c96c'
+
       response = session.compute_service.request :remove_flavor_from_project do |params|
-        params[:flavor_id]            = flavor_id
-        params[:tenant]               = tenant
+        params[:flavor_id] = flavor_id
+        params[:tenant] = tenant
       end
 
-      puts response.inspect
-
       response.status.must_equal 200
-      response.body[:flavor_access].length.wont_equal 0
+      response.body[:flavor_access].wont_be_nil
       response.headers.wont_be_nil
     end
 
@@ -122,13 +120,12 @@ class Aviator::Test
     validate_response 'invalid tenant is provided' do
       # must be hardcoded so as not to inadvertently alter random resources
       # in case the corresponding cassette is deleted
-      flavor_id            = 100
-      remove_tenant_access = 'true'
+      flavor_id = '100'
       tenant = 'abogustenantidthatdoesnotexist'
 
       response = session.compute_service.request :remove_flavor_from_project do |params|
-        params[:flavor_id]            = flavor_id
-        params[:tenant]               = tenant
+        params[:flavor_id] = flavor_id
+        params[:tenant] = tenant
       end
 
       response.status.must_equal 404

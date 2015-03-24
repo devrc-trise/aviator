@@ -22,6 +22,19 @@ class Aviator::Test
     end
 
 
+    def admin_session
+      unless @admin_session
+        @admin_session = Aviator::Session.new(
+                     config_file: Environment.path,
+                     environment: 'openstack_admin'
+                   )
+        @admin_session.authenticate
+      end
+
+      @admin_session
+    end
+
+
     def get_session_data
       session.send :auth_info
     end
@@ -34,6 +47,17 @@ class Aviator::Test
 
     def klass
       @klass ||= helper.load_request('openstack', 'compute', 'v2', 'public', 'list_flavors.rb')
+    end
+
+    def create_private_flavor
+      response = admin_session.compute_service.request :create_flavor do |params|
+        params[:disk] = '1'
+        params[:ram] = '1'
+        params[:vcpus] = '1'
+        params[:name] = 'testflavor'
+        params[:'os-flavor-access:is_public'] = false
+      end
+      response.body[:flavor]
     end
 
 
@@ -78,7 +102,8 @@ class Aviator::Test
         :minDisk,
         :minRam,
         :marker,
-        :limit
+        :limit,
+        :show_private
       ]
     end
 
@@ -163,6 +188,23 @@ class Aviator::Test
       response.body.wont_be_nil
       response.body[:flavors].length.must_equal total_entries
       response.headers.wont_be_nil
+    end
+
+    validate_response 'the show_private is provided' do
+      flavor = create_private_flavor
+      flavor_id = flavor[:id]
+      response = admin_session.compute_service.request :list_flavors do |p|
+        p[:details] = true
+        p[:show_private] = true
+      end
+
+      created_private_flavor = response.body[:flavors].detect do |f|
+        f[:id] == flavor_id
+      end
+
+      response.status.must_equal 200
+      response.body.wont_be_nil
+      created_private_flavor.wont_be_nil
     end
 
   end

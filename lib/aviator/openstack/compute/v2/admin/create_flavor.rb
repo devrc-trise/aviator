@@ -31,7 +31,7 @@ module Aviator
         }
       }
 
-      if is_public = params[:'os-flavor-access:is_public']
+      unless (is_public = params[:'os-flavor-access:is_public']).nil?
         p[:flavor][:'os-flavor-access:is_public'] = is_public
       end
 

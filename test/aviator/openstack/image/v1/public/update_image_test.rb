@@ -89,7 +89,8 @@ class Aviator::Test
         :checksum,
         :is_public,
         :is_protected,
-        :properties
+        :properties,
+        :location
       ]
     end
 

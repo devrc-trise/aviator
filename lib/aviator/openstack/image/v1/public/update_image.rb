@@ -18,6 +18,7 @@ module Aviator
     param :is_public,         required: false
     param :is_protected,      required: false
     param :properties,        required: false
+    param :location,          required: false
 
     def headers
       h = {
@@ -31,6 +32,7 @@ module Aviator
         'x-image-meta-checksum'         => params[:checksum],
         'x-image-meta-is-public'        => params[:is_public],
         'x-image-meta-protected'        => params[:is_protected],
+        'x-image-meta-location'         => params[:location],
       }
 
       unless params[:properties].nil?

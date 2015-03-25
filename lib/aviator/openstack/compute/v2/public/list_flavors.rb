@@ -7,11 +7,12 @@ module Aviator
     link 'documentation',
          'http://docs.openstack.org/api/openstack-compute/2/content/List_Flavors-d1e4188.html'
 
-    param :details, required: false
-    param :minDisk, required: false, alias: :min_disk
-    param :minRam,  required: false, alias: :min_ram
-    param :marker,  required: false
-    param :limit,   required: false
+    param :details,      required: false
+    param :minDisk,      required: false, alias: :min_disk
+    param :minRam,       required: false, alias: :min_ram
+    param :marker,       required: false
+    param :limit,        required: false
+    param :show_private, required: false
 
 
     def headers
@@ -27,7 +28,8 @@ module Aviator
     def url
       str  = "#{ base_url }/flavors"
       str += "/detail" if params[:details]
-      str += params_to_querystring(optional_params + required_params - [:details])
+      str += "?is_public=None" if params[:show_private]
+      str += params_to_querystring(optional_params + required_params - [:details, :show_private])
     end
 
   end

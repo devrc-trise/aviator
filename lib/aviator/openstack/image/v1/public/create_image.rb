@@ -21,6 +21,7 @@ module Aviator
     param :copy_from,         required: false
     param :file,              required: false
     param :properties,        required: false
+    param :location,          required: false
 
     def headers
       h = {
@@ -37,7 +38,8 @@ module Aviator
         'x-image-meta-checksum'         => params[:checksum],
         'x-image-meta-is-public'        => params[:is_public],
         'x-image-meta-protected'        => params[:is_protected],
-        'x-glance-api-copy-from'        => params[:copy_from]
+        'x-image-meta-location'         => params[:location],
+        'x-glance-api-copy-from'        => params[:copy_from],
       }
 
       @request_body = nil

@@ -92,7 +92,8 @@ class Aviator::Test
         :is_protected,
         :copy_from,
         :file,
-        :properties
+        :properties,
+        :location
       ]
     end
 

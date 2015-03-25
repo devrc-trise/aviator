@@ -21,10 +21,7 @@ module Aviator
 
 
     def url
-      str  = "#{ base_url }/flavors"
-      str += "/#{ params[:flavor_id] }"
-      str += "/os-flavor-access"
-      str
+      "#{ base_url }/flavors/#{ params[:flavor_id] }/os-flavor-access"
     end
 
   end

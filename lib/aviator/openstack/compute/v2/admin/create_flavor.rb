@@ -13,6 +13,7 @@ module Aviator
     param :vcpus,  required: true
     param :disk,   required: true
     param :id, required: false
+    param :'os-flavor-access:is_public', required: false
 
     def headers
       super
@@ -26,9 +27,15 @@ module Aviator
           vcpus: params[:vcpus],
           disk: params[:disk],
           id: params[:id],
-          tenant_id: params[:tenant_id],
+          tenant_id: params[:tenant_id]
         }
       }
+
+      if is_public = params[:'os-flavor-access:is_public']
+        p[:flavor][:'os-flavor-access:is_public'] = is_public
+      end
+
+      p
     end
 
 

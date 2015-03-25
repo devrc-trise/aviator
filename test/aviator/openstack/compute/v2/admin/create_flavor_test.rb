@@ -93,7 +93,8 @@ class Aviator::Test
         params[:disk] = '1'
         params[:ram] = '526'
         params[:vcpus] = '1'
-        params[:name] = 'testflavor'
+        params[:name] = 'testflavor1'
+        params[:'os-flavor-access:is_public'] = true
       end
 
       response.status.must_equal 200
@@ -109,7 +110,7 @@ class Aviator::Test
         params[:disk] = '1'
         params[:ram] = '526'
         params[:vcpus] = '1'
-        params[:name] = 'testflavor'
+        params[:name] = 'testflavor2'
       end
 
       response.status.must_equal 200

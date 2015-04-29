@@ -5,6 +5,8 @@ module Aviator
     meta :service,     :volume
     meta :api_version, :v2
 
+    link 'documentation', 'https://wiki.openstack.org/wiki/CreateVolumeFromImage'
+
     param :volume_id,        required: true
     param :image_name,       required: true
     param :force,            required: false # <'True' | 'False'>

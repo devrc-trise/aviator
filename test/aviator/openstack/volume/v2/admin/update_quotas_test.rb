@@ -97,7 +97,7 @@ class Aviator::Test
 
 
     validate_attr :optional_params do
-      klass.optional_params.must_equal [:gigabytes, :snapshots, :volumes]
+      klass.optional_params.must_equal [:gigabytes, :snapshots, :volumes, :custom_quotas]
     end
 
 
@@ -118,13 +118,17 @@ class Aviator::Test
     end
 
 
-    Aviator::Test::RequestHelper.load_request('openstack', 'volume', 'v2', 'admin', 'update_quotas.rb')
-      .optional_params.each do |param|
+    optionals = Aviator::Test::RequestHelper.load_request('openstack', 'volume', 'v2', 'admin', 'update_quotas.rb')
+                                            .optional_params
+
+    defaults = optionals - [:custom_quotas]
+
+    defaults.each do |param|
       validate_response "valid #{param} params is provided" do
         value = 10
         tenant = tenant_id
 
-        response = session.volume_service.request :update_quotas, :api_version => :v1 do |params|
+        response = session.volume_service.request(:update_quotas, api_version: :v2) do |params|
           params[:tenant_id]  = tenant
           params[param]       = value
         end
@@ -137,17 +141,15 @@ class Aviator::Test
       end
     end
 
-    Aviator::Test::RequestHelper.load_request('openstack', 'volume', 'v2', 'admin', 'update_quotas.rb')
-      .optional_params.each do |param|
+    defaults.each do |param|
       validate_response "invalid #{param} params is provided" do
         value = 'stringyValue'
         tenant = tenant_id
 
-        response = session.volume_service.request :update_quotas, :api_version => :v1 do |params|
+        response = session.volume_service.request(:update_quotas, api_version: :v2) do |params|
           params[:tenant_id]  = tenant
           params[param]       = value
         end
-        #binding.pry
 
         response.status.must_equal 200
         response.body.wont_be_nil
@@ -157,6 +159,62 @@ class Aviator::Test
       end
     end
 
+    validate_response 'custom quotas are from volume types' do
+      create_type = session.volume_service.request(:create_volume_type, api_version: :v2) do |params|
+        params[:name] = 'quota-test'
+      end
+
+      volume_type = create_type.body[:volume_type]
+      volume_type.wont_be_empty
+
+      limit            = 10
+      custom_gigabytes = "gigabytes_#{volume_type[:name]}"
+      custom_snapshots = "snapshots_#{volume_type[:name]}"
+      custom_volumes   = "volumes_#{volume_type[:name]}"
+
+      response = session.volume_service.request(:update_quotas, api_version: :v2) do |params|
+        params[:tenant_id]     = tenant_id
+        params[:custom_quotas] = {
+          custom_gigabytes => limit,
+          custom_snapshots => limit,
+          custom_volumes   => limit
+        }
+      end
+
+      response.status.must_equal 200
+      response.body[:quota_set].wont_be_nil
+      response.body[:quota_set][custom_gigabytes].must_equal limit
+      response.body[:quota_set][custom_snapshots].must_equal limit
+      response.body[:quota_set][custom_volumes].must_equal limit
+
+      session.volume_service.request(:delete_volume_type, api_version: :v2) do |params|
+        params[:id] = volume_type[:id]
+      end
+    end
+
+    validate_response 'custom quotas do not exist' do
+      limit            = 10
+      dummy_type       = 'ae35dfe'
+      custom_gigabytes = "gigabytes_#{dummy_type}"
+      custom_snapshots = "snapshots_#{dummy_type}"
+      custom_volumes   = "volumes_#{dummy_type}"
+
+
+      list = session.volume_service.request(:list_volume_types)
+
+      list.body[:volume_types].find { |type| type[:name] == dummy_type }.must_be_nil
+
+      response = session.volume_service.request(:update_quotas, api_version: :v2) do |params|
+        params[:tenant_id]     = tenant_id
+        params[:custom_quotas] = {
+          custom_gigabytes => limit,
+          custom_snapshots => limit,
+          custom_volumes   => limit
+        }
+      end
+
+      response.status.must_equal 400
+    end
   end
 
 end

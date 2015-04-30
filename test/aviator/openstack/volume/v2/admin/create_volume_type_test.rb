@@ -79,6 +79,10 @@ class Aviator::Test
       response.body.wont_be_nil
       response.body[:volume_type].wont_be_nil
       response.headers.wont_be_nil
+
+      session.volume_service.request(:delete_volume_type, api_version: :v2) do |params|
+        params[:id] = response.body[:volume_type][:id]
+      end
     end
   end
 

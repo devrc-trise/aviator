@@ -1,5 +1,3 @@
-require 'pry'
-
 module Aviator
 
   define_request :update_quotas, inherit: [:openstack, :common, :v2, :admin, :base] do

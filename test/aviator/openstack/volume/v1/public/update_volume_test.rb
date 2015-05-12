@@ -75,7 +75,8 @@ class Aviator::Test
     validate_attr :optional_params do
       klass.optional_params.must_equal [
         :display_name,
-        :display_description
+        :display_description,
+        :metadata
       ]
     end
 

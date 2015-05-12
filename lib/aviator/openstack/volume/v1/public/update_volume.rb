@@ -10,12 +10,13 @@ module Aviator
     param :id,                  required: true
     param :display_name,        required: false
     param :display_description, required: false
+    param :metadata,            required: false
 
 
     def body
       p = { volume: {} }
 
-      [:display_name, :display_description].each do |key|
+      optional_params.each do |key|
         p[:volume][key] = params[key] if params[key]
       end
 

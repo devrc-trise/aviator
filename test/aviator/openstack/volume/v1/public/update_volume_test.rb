@@ -115,6 +115,31 @@ class Aviator::Test
       response.headers.wont_be_nil
     end
 
+    validate_response 'valid metadata is provided' do
+      response = session.volume_service.request(:create_volume) do |p|
+        p.display_name        = 'update-volume-test'
+        p.display_description = 'update-volume-test description'
+        p.size                = 1
+      end
+      volume_id = response.body[:volume][:id]
+
+      sleep 5 if VCR.current_cassette.recording?
+
+      response = session.volume_service.request(:update_volume) do |p|
+        p.id       = volume_id
+        p.metadata = { test_key: 'test_value' }
+      end
+
+      response.status.must_equal 200
+      response.body.wont_be_nil
+
+      response = session.volume_service.request(:get_volume) { |p| p.id = volume_id }
+      response.body[:volume][:metadata].keys.must_include 'test_key'
+      response.body[:volume][:metadata][:test_key].must_equal 'test_value'
+
+      session.volume_service.request(:delete_volume) { |p| p.id = volume_id }
+    end
+
     validate_response 'invalid volume id is provided' do
       volume_id = 'ithinkiexist'
 

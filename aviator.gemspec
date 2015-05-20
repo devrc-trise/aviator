@@ -5,7 +5,7 @@ require 'aviator/version'
 require 'rbconfig'
 
 Gem::Specification.new do |spec|
-  spec.name          = "aviator"
+  spec.name          = "musashi-aviator"
   spec.version       = Aviator::VERSION
   spec.authors       = ["Mark Maglana"]
   spec.email         = ["mmaglana@gmail.com"]

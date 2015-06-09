@@ -5,7 +5,7 @@ module Aviator
     meta :service,      :image
     meta :api_version,  :v1
 
-    link 'documentation', 'http://docs.openstack.org/api/openstack-image-service/1.1/content/updating-an-image.html'
+    link 'documentation', 'http://developer.openstack.org/api-ref-image-v1.html#updateImage-v1'
 
     param :id,     required: true
     param :status, required: true

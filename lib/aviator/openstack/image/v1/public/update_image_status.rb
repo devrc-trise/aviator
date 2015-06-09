@@ -1,0 +1,34 @@
+module Aviator
+
+  define_request :update_image_status, inherit: [:openstack, :common, :v2, :public, :base] do
+
+    meta :service,      :image
+    meta :api_version,  :v1
+
+    link 'documentation', 'http://docs.openstack.org/api/openstack-image-service/1.1/content/updating-an-image.html'
+
+    param :id,     required: true
+    param :status, required: true
+
+    def headers
+      h = {
+        'X-Auth-Token'                  => session_data.token,
+        'x-image-meta-status'           => params[:status],
+        'x-glance-registry-purge-props' => 'False'
+      }
+
+      h.reject { |k,v| v.nil? }
+    end
+
+    def http_method
+      :put
+    end
+
+    def url
+      uri = URI(base_url)
+      "#{ uri.scheme }://#{ uri.host }:#{ uri.port.to_s }/v1/images/#{ params[:id] }"
+    end
+
+  end
+
+end

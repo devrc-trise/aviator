@@ -9,6 +9,10 @@ module Aviator
         require 'logger'
         ::Logger.new(self.class::LOG_FILE_PATH)
       end
+      @logger.formatter = proc do |severity, datetime, progname, msg|
+        "#{datetime.utc.strftime("%Y-%m-%d %H:%M:%S.%L")} #{$$} #{severity} #{msg}\n"
+      end
+      @logger
     end
 
 
